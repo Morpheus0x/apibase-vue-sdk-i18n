@@ -1,16 +1,16 @@
 // types.ts
 
-export type ApiResponse = {
+export type ApiAuthResponse = {
   success: boolean;
   text: string;
   httpStatus: number;
   redirect: string | undefined;
 };
 
-export type JsonResponse = {
+export type JsonResponse<T> = {
   id: number;
   msg: string;
-  data: object;
+  data: T;
 };
 
 export type RedirectTarget = {

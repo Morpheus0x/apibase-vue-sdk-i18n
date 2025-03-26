@@ -4,16 +4,20 @@ import type { AxiosResponse, AxiosError } from 'axios';
 import axios from 'axios';
 import type { ComposerTranslation } from 'vue-i18n';
 
-import type { ApiResponse, JsonResponse, RedirectTarget } from './types';
+import type { ApiAuthResponse, JsonResponse, RedirectTarget } from './types';
 import { getResponseMessage, getCsrfToken } from './helpers';
 
 // Requires the t function returned by vue-i18n useI18n(), might return redirect target
-export async function Login(t: ComposerTranslation, email: string, password: string): Promise<ApiResponse> {
+export async function Login(
+  t: ComposerTranslation,
+  email: string,
+  password: string
+): Promise<ApiAuthResponse> {
   const formData = new FormData();
   formData.append('email', email);
   formData.append('password', password);
 
-  let out: ApiResponse = {
+  let out: ApiAuthResponse = {
     success: false,
     text: '',
     httpStatus: 0,
@@ -33,28 +37,23 @@ export async function Login(t: ComposerTranslation, email: string, password: str
       // console.log('response: ', res);
       out.httpStatus = res.status;
       out.success = true;
-      return res.data as JsonResponse;
+      return res.data as JsonResponse<RedirectTarget>;
     })
     .catch((err: AxiosError) => {
       // console.log('error: ', err);
       out.httpStatus = err.status || 0;
       if (err.response) {
-        return err.response?.data as JsonResponse;
+        return err.response?.data as JsonResponse<RedirectTarget>;
       } else {
         console.log('Unknown Response from API: ', err);
         return {
           id: -1,
           msg: t('apibase.frontend.invalid_error_response')
-        } as JsonResponse;
+        } as JsonResponse<RedirectTarget>;
       }
     });
-  if (
-    response.data &&
-    typeof response.data === 'object' &&
-    'ref' in response.data &&
-    'target' in response.data
-  ) {
-    out.redirect = (response.data as RedirectTarget).target;
+  if (response.data && 'ref' in response.data && 'target' in response.data) {
+    out.redirect = response.data.target;
   }
   if (response.id === -1) {
     out.text = response.msg;
@@ -71,14 +70,14 @@ export async function Signup(
   email: string,
   password: string,
   passwordConfirmed: string
-): Promise<ApiResponse> {
+): Promise<ApiAuthResponse> {
   const formData = new FormData();
   formData.append('username', username);
   formData.append('email', email);
   formData.append('password', password);
   formData.append('password-confirm', passwordConfirmed);
 
-  let out: ApiResponse = {
+  let out: ApiAuthResponse = {
     success: false,
     text: '',
     httpStatus: 0,
@@ -98,19 +97,19 @@ export async function Signup(
       // console.log('response: ', res);
       out.httpStatus = res.status;
       out.success = true;
-      return res.data as JsonResponse;
+      return res.data as JsonResponse<RedirectTarget>;
     })
     .catch((err: AxiosError) => {
       // console.log('error: ', err);
       out.httpStatus = err.status || 0;
       if (err.response) {
-        return err.response?.data as JsonResponse;
+        return err.response?.data as JsonResponse<RedirectTarget>;
       } else {
         console.log('Unknown Response from API: ', err);
         return {
           id: -1,
           msg: t('apibase.frontend.invalid_error_response')
-        } as JsonResponse;
+        } as JsonResponse<RedirectTarget>;
       }
     });
   if (response.id === -1) {
@@ -122,8 +121,8 @@ export async function Signup(
 }
 
 // Requires the t function returned by vue-i18n useI18n(), might return redirect target
-export async function Logout(t: ComposerTranslation, provider: string): Promise<ApiResponse> {
-  let out: ApiResponse = {
+export async function Logout(t: ComposerTranslation, provider: string): Promise<ApiAuthResponse> {
+  let out: ApiAuthResponse = {
     success: false,
     text: '',
     httpStatus: 0,
@@ -148,29 +147,24 @@ export async function Logout(t: ComposerTranslation, provider: string): Promise<
       console.log('response: ', res);
       out.httpStatus = res.status;
       out.success = true;
-      return res.data as JsonResponse;
+      return res.data as JsonResponse<RedirectTarget>;
     })
     .catch((err: AxiosError) => {
       console.log('error: ', err);
       out.httpStatus = err.status || 0;
       if (err.response) {
-        return err.response?.data as JsonResponse;
+        return err.response?.data as JsonResponse<RedirectTarget>;
       } else {
         console.log('Unknown Response from API: ', err);
         return {
           id: -1,
           msg: t('apibase.frontend.invalid_error_response')
-        } as JsonResponse;
+        } as JsonResponse<RedirectTarget>;
       }
     });
   console.log('logout parsed response: ', response);
-  if (
-    response.data &&
-    typeof response.data === 'object' &&
-    'ref' in response.data &&
-    'target' in response.data
-  ) {
-    out.redirect = (response.data as RedirectTarget).target;
+  if (response.data && 'ref' in response.data && 'target' in response.data) {
+    out.redirect = response.data.target;
   }
   if (response.id === -1) {
     out.text = response.msg;
