@@ -17,3 +17,16 @@ export type RedirectTarget = {
   ref: string;
   target: string;
 };
+
+export type ApiResponse<T> = {
+  success: boolean;
+  text: string;
+  httpStatus: number;
+  data: T;
+};
+
+export type ApiResponseStream<T> = {
+  stage: number;
+  content: string;
+  data: T;
+};
